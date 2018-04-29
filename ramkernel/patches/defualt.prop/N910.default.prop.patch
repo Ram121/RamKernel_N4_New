@@ -1,0 +1,36 @@
+--- default.prop	2016-11-22 19:17:09.999610800 +0530
++++ edited.default.prop	2016-11-22 19:20:11.491387600 +0530
+@@ -8,8 +8,8 @@
+ persist.radio.apm_sim_not_pwdn=1
+ persist.radio.add_power_save=1
+ persist.data.netmgrd.qos.enable=false
+-persist.security.ams.enforcing=3
+-ro.secure=1
++persist.security.ams.enforcing=0
++ro.secure=0
+ ro.allow.mock.location=0
+ ro.debuggable=0
+ ro.adb.secure=1
+@@ -20,7 +20,21 @@
+ dalvik.vm.dex2oat-Xmx=512m
+ ro.dalvik.vm.native.bridge=0
+ debug.atrace.tags.enableflags=0
+-persist.sys.usb.config=mtp
++persist.sys.strict_op_enable=false
++camera2.portability.force_api=1
++persist.sys.usb.config=mtp,adb
++ro.securestorage.support=false
++androidboot.selinux=0
++ro.securestorage.support=false
++wlan.wfd.hdcp=disable
++ro.config.tima=0
++ro.security.mdpp.ux=Disabled
++ro.build.selinux=0
++ro.config.knox=0
++ro.securestorage.knox=false
++security.knox_kap_mode=false
++persist.cne.feature=0
++persist.security.ams.enforcing=0
+ #
+ # BOOTIMAGE_BUILD_PROPERTIES
+ #

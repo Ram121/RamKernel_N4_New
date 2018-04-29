@@ -1,0 +1,14 @@
+--- ueventd.rc	2017-01-11 19:06:36.582869800 +0530
++++ ueventd.rc.edited	2017-01-11 19:02:37.000000000 +0530
+@@ -95,8 +95,9 @@
+ /sys/devices/virtual/input/input*   enable      0660  root   input
+ /sys/devices/virtual/input/input*   poll_delay  0660  root   input
+ /sys/devices/virtual/usb_composite/*   enable      0664  root   system
+-/sys/devices/system/cpu/cpu*   cpufreq/scaling_max_freq   0664  system system
+-/sys/devices/system/cpu/cpu*   cpufreq/scaling_min_freq   0664  system system
++/sys/devices/system/cpu/cpu*   cpufreq/scaling_max_freq   0640  root root
++/sys/devices/system/cpu/cpu*   cpufreq/scaling_min_freq   0640  root root
++
+ 
+ # DVB API device nodes
+ /dev/dvb*                 0660   root       system

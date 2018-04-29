@@ -1,0 +1,13 @@
+--- default.prop	2017-05-29 22:27:23.887578395 +0530
++++ edited.default.prop	2017-05-29 22:28:35.186665377 +0530
+@@ -11,8 +11,8 @@
+ persist.security.ams.enforcing=0
+ ro.secure=0
+ ro.allow.mock.location=0
+-ro.debuggable=0
+-ro.adb.secure=1
++ro.debuggable=1
++ro.adb.secure=0
+ ro.zygote=zygote32
+ dalvik.vm.image-dex2oat-Xms=64m
+ dalvik.vm.image-dex2oat-Xmx=64m

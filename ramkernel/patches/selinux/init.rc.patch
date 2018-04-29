@@ -1,0 +1,129 @@
+--- init.rc	2016-11-22 19:17:10.344717800 +0530
++++ init.rc.edited	2016-11-29 19:13:46.559558800 +0530
+@@ -19,7 +19,7 @@
+     write /proc/1/oom_adj -16
+ 
+     # Set the security context of /adb_keys if present.
+-    restorecon /adb_keys
++    # restorecon /adb_keys
+ 
+     start ueventd
+ 
+@@ -91,12 +91,12 @@
+ 
+     # Directory for staging bindmounts
+     mkdir /mnt/secure/staging 0700 root root
+-    restorecon_recursive /mnt/secure/staging
++    # restorecon_recursive /mnt/secure/staging
+ ## Samsung ODE <<<
+ 
+     mkdir /mnt/secure/asec 0700 root root
+     mount tmpfs tmpfs /mnt/secure/asec mode=0700,uid=0,gid=0
+-    restorecon_recursive /mnt/secure/asec
++    # restorecon_recursive /mnt/secure/asec
+     
+     mkdir /mnt/asec 0755 root system
+     mkdir /mnt/obb 0755 root system
+@@ -332,7 +332,7 @@
+ 
+     # create the lost+found directories, so as to enforce our permissions
+     mkdir /cache/lost+found 0770 root root
+-    restorecon /cache/lost+found
++    # restorecon /cache/lost+found
+ 
+ on post-fs-data
+     # Reload SE Android Policy
+@@ -342,8 +342,8 @@
+     chown system system /data
+     chmod 0771 /data
+     # We restorecon /data in case the userdata partition has been reset.
+-    restorecon /data
+-    restorecon /data/lost+found
++    # restorecon /data
++    # restorecon /data/lost+found
+ 
+     # Emulated internal storage area
+     mkdir /data/media 0770 media_rw media_rw
+@@ -418,8 +418,8 @@
+     chown system system /dev/icdr
+     chmod 0644 /dev/icdr
+     chown system system /dev/tzic
+-    restorecon /dev/icd
+-    restorecon /dev/icdr
++    # restorecon /dev/icd
++    # restorecon /dev/icdr
+ 
+     #SideSync
+     chown system system /dev/android_ssusbcon
+@@ -445,8 +445,8 @@
+     chown system system /data/anr
+     chmod 0775 /data/log
+     chmod 0775 /data/anr
+-    restorecon /data/log
+-    restorecon /data/anr
++    # restorecon /data/log
++    # restorecon /data/anr
+ 
+     # create dalvik-cache, so as to enforce our permissions
+     mkdir /data/dalvik-cache 0771 root root
+@@ -459,7 +459,7 @@
+ 
+     # create the lost+found directories, so as to enforce our permissions
+     mkdir /data/lost+found 0770 root root
+-    restorecon /data/lost+found
++    # restorecon /data/lost+found
+ 
+     # create directory for DRM plug-ins - give drm the read/write access to
+     # the following directory.
+@@ -495,8 +495,8 @@
+     chown root root /system/lib/drm
+     chmod 0775 /system/lib/drm
+ 
+-    restorecon -R /efs
+-    restorecon -R /carrier
++    # restorecon -R /efs
++    # restorecon -R /carrier
+ # ]
+ 
+ #drm permission
+@@ -1401,7 +1401,7 @@
+ service ueventd /sbin/ueventd
+     class core
+     critical
+-    seclabel u:r:ueventd:s0
++    # seclabel u:r:ueventd:s0
+ 
+ ## SA, System S/W, disable logd
+ # service logd /system/bin/logd
+@@ -1420,7 +1420,7 @@
+ service healthd /sbin/healthd
+     class core
+     critical
+-    seclabel u:r:healthd:s0
++    # seclabel u:r:healthd:s0
+     group root system
+ 
+ service lpm /system/bin/lpm
+@@ -1433,7 +1433,7 @@
+     disabled
+     user shell
+     group shell log
+-    seclabel u:r:shell:s0
++    # seclabel u:r:shell:s0
+ 
+ service prepare_param /system/bin/prepare_param.sh /dev/block/platform/msm_sdcc.1/by-name/param
+     class core
+@@ -1478,11 +1478,11 @@
+     start console
+ 
+ # adbd is controlled via property triggers in init.<platform>.usb.rc
+-service adbd /sbin/adbd --root_seclabel=u:r:su:s0
++service adbd /sbin/adbd
+      class core
+     socket adbd stream 660 system system
+     disabled
+-    seclabel u:r:adbd:s0
++    # seclabel u:r:adbd:s0
+ 
+ # adbd on at boot in emulator
+ on property:ro.kernel.qemu=1

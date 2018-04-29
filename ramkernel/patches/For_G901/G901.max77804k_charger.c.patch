@@ -1,0 +1,166 @@
+--- max77804k_charger.c.b	2017-04-29 19:26:50.509955894 +0530
++++ max77804k_charger.c	2016-04-04 15:44:38.000000000 +0530
+@@ -14,8 +14,6 @@
+ #include <linux/mfd/max77804k-private.h>
+ #include <linux/of_gpio.h>
+ #include <linux/battery/charger/max77804k_charger.h>
+-#include <linux/fastchg.h>
+-
+ #ifdef CONFIG_USB_HOST_NOTIFY
+ #include <linux/host_notify.h>
+ #endif
+@@ -882,7 +880,6 @@
+ #if defined(CONFIG_BATTERY_SWELLING)
+ 	u8 reg_data;
+ #endif	
+-	int current_now = 0;
+ 
+ 	switch (psp) {
+ 	case POWER_SUPPLY_PROP_STATUS:
+@@ -959,6 +956,30 @@
+ 				}
+ 			}
+ 		}
++		
++		if (charger->pdata->full_check_type_2nd == SEC_BATTERY_FULLCHARGED_CHGPSY) {
++			union power_supply_propval chg_mode;
++			psy_do_property("battery", get, POWER_SUPPLY_PROP_CHARGE_NOW, chg_mode);
++
++			if (chg_mode.intval == SEC_BATTERY_CHARGING_2ND) {
++				max77804k_set_charger_state(charger, 0);
++				max77804k_set_topoff_current(charger,
++							    charger->pdata->charging_current[
++								    charger->cable_type].full_check_current_2nd,
++							    (70 * 60));
++			} else {
++				max77804k_set_topoff_current(charger,
++							    charger->pdata->charging_current[
++								    charger->cable_type].full_check_current_1st,
++							    (70 * 60));
++			}
++		} else {
++			max77804k_set_topoff_current(charger,
++				charger->pdata->charging_current[
++				val->intval].full_check_current_1st,
++				charger->pdata->charging_current[
++				val->intval].full_check_current_2nd);
++		}
+ 		max77804k_set_charger_state(charger, charger->is_charging);
+ 		/* if battery full, only disable charging  */
+ 		if ((charger->status == POWER_SUPPLY_STATUS_CHARGING) ||
+@@ -976,11 +997,6 @@
+ 			else
+ 				max77804k_set_input_current(charger,
+ 						set_charging_current_max);
+-			max77804k_set_topoff_current(charger,
+-				charger->pdata->charging_current[
+-				val->intval].full_check_current_1st,
+-				charger->pdata->charging_current[
+-				val->intval].full_check_current_2nd);
+ 		}
+ 		break;
+ 	/* val->intval : input charging current */
+@@ -1004,47 +1020,8 @@
+ 	case POWER_SUPPLY_PROP_CHARGE_FULL_DESIGN:
+ 		charger->siop_level = val->intval;
+ 		if (charger->is_charging) {
+-			if (force_fast_charge == FAST_CHARGE_FORCE_AC) {
+-				switch(charger->cable_type) {
+-					case POWER_SUPPLY_TYPE_USB:
+-					case POWER_SUPPLY_TYPE_USB_ACA:
+-					case POWER_SUPPLY_TYPE_CARDOCK:
+-					case POWER_SUPPLY_TYPE_OTG:
+-						current_now = FAST_CHARGE_900;
+-						goto set_current;
+-					case POWER_SUPPLY_TYPE_WIRELESS:
+-						current_now = FAST_CHARGE_900;
+-						goto set_current;
+-					case POWER_SUPPLY_TYPE_MAINS:
+-						current_now = FAST_CHARGE_1500;
+-						goto set_current;
+-				}
+-			} else if (force_fast_charge ==
+-				FAST_CHARGE_FORCE_CUSTOM_MA) {
+-				switch(charger->cable_type) {
+-					case POWER_SUPPLY_TYPE_USB:
+-					case POWER_SUPPLY_TYPE_USB_DCP:
+-					case POWER_SUPPLY_TYPE_USB_CDP:
+-					case POWER_SUPPLY_TYPE_USB_ACA:
+-					case POWER_SUPPLY_TYPE_CARDOCK:
+-					case POWER_SUPPLY_TYPE_OTG:
+-						current_now = FAST_CHARGE_900;
+-						goto set_current;
+-					case POWER_SUPPLY_TYPE_WIRELESS:
+-						current_now = FAST_CHARGE_900;
+-						goto set_current;
+-					case POWER_SUPPLY_TYPE_MAINS:
+-						current_now =
+-							min(fast_charge_level,
+-							FAST_CHARGE_2200);
+-						goto set_current;
+-					default:
+-						break;
+-				}
+-			}
+-
+ 			/* decrease the charging current according to siop level */
+-			current_now =
++			int current_now =
+ 				charger->charging_current * val->intval / 100;
+ 
+ 			/* do forced set charging current */
+@@ -1079,7 +1056,7 @@
+ 				max77804k_set_input_current(charger,
+ 					set_charging_current_max);
+ 			}
+-set_current:
++
+ 			max77804k_set_charge_current(charger, current_now);
+ 		}
+ 		break;
+@@ -1717,21 +1694,32 @@
+ 
+ static int sec_charger_parse_dt(struct max77804k_charger_data *charger)
+ {
+-	struct device_node *np = of_find_node_by_name(NULL, "charger");
++	struct device_node *np = NULL;
+ 	sec_charger_platform_data_t *pdata = charger->pdata;
+ 	int ret = 0;
+ 	int i, len;
+ 	const u32 *p;
+ 
++	np = of_find_node_by_name(NULL, "battery");
++	if (np == NULL) {
++		pr_err("%s: np NULL\n", __func__);
++		goto err;
++	} else {
++		ret = of_property_read_u32(np, "battery,full_check_type",
++					&pdata->full_check_type);
++		ret = of_property_read_u32(np, "battery,full_check_type_2nd",
++					&pdata->full_check_type_2nd);
++	}
++
++	np = of_find_node_by_name(NULL, "charger");
+ 	if (np == NULL) {
+-		pr_err("%s np NULL\n", __func__);
++		pr_err("%s: np NULL\n", __func__);
++		goto err;
+ 	} else {
+ 		ret = of_property_read_u32(np, "battery,chg_float_voltage",
+ 					&pdata->chg_float_voltage);
+ 		ret = of_property_read_u32(np, "battery,ovp_uvlo_check_type",
+ 					&pdata->ovp_uvlo_check_type);
+-		ret = of_property_read_u32(np, "battery,full_check_type",
+-					&pdata->full_check_type);
+ 
+ 		p = of_get_property(np, "battery,input_current_limit", &len);
+ 		len = len / sizeof(u32);
+@@ -1768,7 +1756,7 @@
+ 		}
+ #endif
+ 	}
+-
++err:
+ 	return ret;
+ }
+ #endif

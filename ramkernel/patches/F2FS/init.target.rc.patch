@@ -1,0 +1,13 @@
+--- init.target.rc	2017-04-29 19:11:27.000000000 +0530
++++ init.target.rc.edited	2017-04-29 19:46:28.118084485 +0530
+@@ -45,8 +45,8 @@
+     # results in failure to launch late-start class.
+ 
+     wait /dev/block/bootdevice/by-name/cache
+-    check_fs /dev/block/bootdevice/by-name/cache ext4
+-    mount ext4 /dev/block/bootdevice/by-name/cache /cache nosuid nodev noatime noauto_da_alloc,discard,journal_async_commit,errors=panic
++    check_fs /dev/block/bootdevice/by-name/cache
++    mount /dev/block/bootdevice/by-name/cache /cache nosuid nodev noatime noauto_da_alloc,discard,journal_async_commit,errors=panic
+ 
+     wait /dev/block/bootdevice/by-name/persist
+     check_fs /dev/block/bootdevice/by-name/persist ext4

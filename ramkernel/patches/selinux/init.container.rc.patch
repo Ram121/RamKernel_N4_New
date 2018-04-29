@@ -1,0 +1,11 @@
+--- init.container.rc	2016-11-22 19:17:10.270883100 +0530
++++ init.container.rc.edited	2016-11-29 18:57:28.196615000 +0530
+@@ -70,7 +70,7 @@
+ 
+     export ENC_EMULATED_STORAGE_TARGET /storage/enc_emulated
+ 
+-    restorecon /data/knox
++    #restorecon /data/knox
+ 
+ on boot
+ 

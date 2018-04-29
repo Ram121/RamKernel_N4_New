@@ -1,0 +1,9 @@
+--- Kconfig.edited	2017-05-26 20:27:40.404142000 +0530
++++ Kconfig	2017-03-28 16:26:38.000000000 +0530
+@@ -142,6 +142,4 @@
+ 
+ source "drivers/staging/vnswap/Kconfig"
+ 
+-source "drivers/staging/qcacld-2.0/Kconfig"
+-
+ endif # STAGING
